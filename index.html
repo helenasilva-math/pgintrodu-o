@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>O Império da Progressão Geométrica</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js para gráficos -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Nunito', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+            color: #f8fafc;
+            min-height: 100vh;
+        }
+        h1, h2, h3, .font-heading {
+            font-family: 'Fredoka', sans-serif;
+        }
+        .card-glass {
+            background: rgba(30, 41, 59, 0.75);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .btn-action {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .btn-action:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px -4px rgba(99, 102, 241, 0.5);
+        }
+        .btn-action:active {
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen">
+
+    <!-- Header / Navbar -->
+    <header class="card-glass sticky top-0 z-50 px-4 py-3 border-b border-indigo-900/50">
+        <div class="max-w-6xl mx-auto flex items-center justify-between">
+            <div class="flex items-center gap-3 cursor-pointer" onclick="switchTab('intro')">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-500 to-pink-500 flex items-center justify-center text-white font-bold text-xl shadow-lg">
+                    <i class="fa-solid fa-chart-line"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold bg-gradient-to-r from-indigo-300 via-pink-300 to-purple-300 bg-clip-text text-transparent">
+                        O Império da P.G.
+                    </h1>
+                    <p class="text-xs text-indigo-300">Jornada Interativa de Progressão Geométrica</p>
+                </div>
+            </div>
+
+            <!-- Score e Progresso -->
+            <div class="flex items-center gap-4">
+                <div class="flex items-center gap-2 bg-indigo-950/80 px-4 py-1.5 rounded-full border border-indigo-800 shadow-inner">
+                    <i class="fa-solid fa-trophy text-amber-400"></i>
+                    <span class="text-xs text-slate-300 hidden sm:inline">Pontuação:</span>
+                    <span id="player-score" class="font-extrabold text-amber-400 text-lg">0</span>
+                </div>
+                <button onclick="toggleHelpModal()" class="px-3 py-1.5 rounded-lg bg-indigo-900/50 hover:bg-indigo-800 text-indigo-200 text-sm font-semibold flex items-center gap-2 transition">
+                    <i class="fa-solid fa-lightbulb text-amber-300"></i>
+                    <span class="hidden sm:inline">O que é P.G.?</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Conteúdo Principal -->
+    <main class="flex-1 max-w-6xl w-full mx-auto p-4 md:p-6 flex flex-col gap-6">
+
+        <!-- Abas de Navegação -->
+        <nav class="flex flex-wrap justify-center gap-2 bg-slate-900/60 p-1.5 rounded-2xl border border-slate-800">
+            <button id="nav-intro" onclick="switchTab('intro')" class="nav-btn px-4 py-2 rounded-xl font-bold text-sm transition flex items-center gap-2 bg-indigo-600 text-white shadow-md">
+                <i class="fa-solid fa-compass"></i> Início
+            </button>
+            <button id="nav-phase1" onclick="switchTab('phase1')" class="nav-btn px-4 py-2 rounded-xl font-bold text-sm text-slate-400 hover:text-white hover:bg-slate-800/80 transition flex items-center gap-2">
+                <i class="fa-solid fa-key"></i> Fase 1: Código da Razão (q)
+            </button>
+            <button id="nav-phase2" onclick="switchTab('phase2')" class="nav-btn px-4 py-2 rounded-xl font-bold text-sm text-slate-400 hover:text-white hover:bg-slate-800/80 transition flex items-center gap-2">
+                <i class="fa-solid fa-bridge"></i> Fase 2: Termo Geral (aₙ)
+            </button>
+            <button id="nav-phase3" onclick="switchTab('phase3')" class="nav-btn px-4 py-2 rounded-xl font-bold text-sm text-slate-400 hover:text-white hover:bg-slate-800/80 transition flex items-center gap-2">
+                <i class="fa-solid fa-gem"></i> Fase 3: Tesouro da Soma (Sₙ)
+            </button>
+            <button id="nav-lab" onclick="switchTab('lab')" class="nav-btn px-4 py-2 rounded-xl font-bold text-sm text-slate-400 hover:text-white hover:bg-slate-800/80 transition flex items-center gap-2">
+                <i class="fa-solid fa-flask"></i> Laboratório Livre
+            </button>
+        </nav>
+
+        <!-- SEÇÃO: INTRODUÇÃO -->
+        <section id="tab-intro" class="tab-content flex flex-col gap-6">
+            <div class="card-glass rounded-3xl p-6 md:p-10 text-center relative overflow-hidden">
+                <div class="absolute -top-10 -right-10 w-40 h-40 bg-pink-500/20 rounded-full blur-3xl pointer-events-none"></div>
+                <div class="absolute -bottom-10 -left-10 w-40 h-40 bg-indigo-500/20 rounded-full blur-3xl pointer-events-none"></div>
+
+                <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-indigo-500/20 text-indigo-300 text-sm font-semibold mb-4 border border-indigo-500/30">
+                    <i class="fa-solid fa-crown text-amber-400"></i> Desafio Exponencial Interativo
+                </div>
+                
+                <h2 class="text-3xl md:text-5xl font-extrabold mb-4 bg-gradient-to-r from-white via-indigo-100 to-indigo-300 bg-clip-text text-transparent">
+                    Domine o Poder do Crescimento Exponencial!
+                </h2>
+                
+                <p class="text-slate-300 max-w-2xl mx-auto text-base md:text-lg mb-8 leading-relaxed">
+                    Em uma <strong class="text-pink-400">Progressão Geométrica (P.G.)</strong>, cada número é gerado multiplicando o termo anterior por um valor constante chamado <strong>razão (q)</strong>. Escolha uma das missões abaixo para começar!
+                </p>
+
+                <!-- Cards das Fases -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-left max-w-4xl mx-auto mb-6">
+                    <div onclick="switchTab('phase1')" class="card-glass p-6 rounded-2xl hover:border-indigo-400 transition cursor-pointer group flex flex-col justify-between">
+                        <div>
+                            <div class="w-12 h-12 rounded-xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center text-xl mb-4 group-hover:scale-110 transition">
+                                🔑
+                            </div>
+                            <h3 class="text-xl font-bold text-white mb-2">Fase 1: O Código da Razão (q)</h3>
+                            <p class="text-sm text-slate-400">Identifique o fator multiplicativo misterioso que faz a sequência crescer!</p>
+                        </div>
+                        <div class="mt-6 flex items-center text-sm font-bold text-indigo-400 group-hover:text-indigo-300">
+                            Iniciar Missão <i class="fa-solid fa-arrow-right ml-2 group-hover:translate-x-1 transition"></i>
+                        </div>
+                    </div>
+
+                    <div onclick="switchTab('phase2')" class="card-glass p-6 rounded-2xl hover:border-purple-400 transition cursor-pointer group flex flex-col justify-between">
+                        <div>
+                            <div class="w-12 h-12 rounded-xl bg-purple-500/20 text-purple-400 flex items-center justify-center text-xl mb-4 group-hover:scale-110 transition">
+                                🧱
+                            </div>
+                            <h3 class="text-xl font-bold text-white mb-2">Fase 2: Construtor (aₙ)</h3>
+                            <p class="text-sm text-slate-400">Use a fórmula do Termo Geral aₙ = a₁ · qⁿ⁻¹ para avançar pelos degraus!</p>
+                        </div>
+                        <div class="mt-6 flex items-center text-sm font-bold text-purple-400 group-hover:text-purple-300">
+                            Iniciar Missão <i class="fa-solid fa-arrow-right ml-2 group-hover:translate-x-1 transition"></i>
+                        </div>
+                    </div>
+
+                    <div onclick="switchTab('phase3')" class="card-glass p-6 rounded-2xl hover:border-pink-400 transition cursor-pointer group flex flex-col justify-between">
+                        <div>
+                            <div class="w-12 h-12 rounded-xl bg-pink-500/20 text-pink-400 flex items-center justify-center text-xl mb-4 group-hover:scale-110 transition">
+                                👑
+                            </div>
+                            <h3 class="text-xl font-bold text-white mb-2">Fase 3: O Tesouro da Soma (Sₙ)</h3>
+                            <p class="text-sm text-slate-400">Desvende o segredo do acúmulo total com a fórmula da Soma Sₙ.</p>
+                        </div>
+                        <div class="mt-6 flex items-center text-sm font-bold text-pink-400 group-hover:text-pink-300">
+                            Iniciar Missão <i class="fa-solid fa-arrow-right ml-2 group-hover:translate-x-1 transition"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Comparação PA x PG -->
+                <div class="bg-indigo-950/60 p-6 rounded-2xl border border-indigo-900/80 text-left max-w-4xl mx-auto">
+                    <h4 class="font-bold text-indigo-200 mb-2 flex items-center gap-2">
+                        <i class="fa-solid fa-scale-balanced text-amber-400"></i> Qual a diferença entre P.A. e P.G.?
+                    </h4>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+                        <div class="bg-slate-900/70 p-3.5 rounded-xl border border-slate-800">
+                            <span class="font-bold text-sky-400">P.A. (Progressão Aritmética):</span><br>
+                            Soma-se uma constante (r): <code class="text-amber-300 font-bold">2, 5, 8, 11, 14...</code> (+3 a cada passo)
+                        </div>
+                        <div class="bg-slate-900/70 p-3.5 rounded-xl border border-slate-800">
+                            <span class="font-bold text-pink-400">P.G. (Progressão Geométrica):</span><br>
+                            Multiplica-se por uma constante (q): <code class="text-amber-300 font-bold">2, 6, 18, 54, 162...</code> (×3 a cada passo)
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- FASE 1: DESBLOQUEIE O CÓDIGO DA RAZÃO (q) -->
+        <section id="tab-phase1" class="tab-content hidden flex-col gap-6">
+            <div class="card-glass p-6 rounded-3xl">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 pb-4 border-b border-slate-700/50">
+                    <div>
+                        <span class="text-xs font-bold text-indigo-400 uppercase tracking-wider">Fase 1</span>
+                        <h2 class="text-2xl font-bold text-white flex items-center gap-2">
+                            🔑 Desbloqueie o Código da Razão (q)
+                        </h2>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <span class="text-sm text-slate-400">Progresso: <span id="p1-level" class="text-white font-bold">1 / 5</span></span>
+                        <div class="w-24 bg-slate-800 h-2 rounded-full overflow-hidden">
+                            <div id="p1-progress" class="bg-indigo-500 h-full w-1/5 transition-all"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <p class="text-slate-300 text-sm mb-6">
+                    Para descobrir a <strong>razão (q)</strong> de uma P.G., escolha um termo qualquer e divida-o pelo termo anterior! Por qual número a sequência abaixo está sendo multiplicada?
+                </p>
+
+                <div class="bg-slate-950/80 p-8 rounded-2xl border border-indigo-900/60 mb-8 flex flex-col items-center justify-center min-h-[180px]">
+                    <div class="text-xs text-indigo-400 mb-2 font-mono">Sequência em P.G.:</div>
+                    <div id="p1-sequence-container" class="flex flex-wrap items-center justify-center gap-3 sm:gap-4 text-2xl sm:text-3xl font-extrabold">
+                        <!-- Preenchido via JS -->
+                    </div>
+                </div>
+
+                <div class="max-w-xl mx-auto flex flex-col gap-4 text-center">
+                    <h3 class="text-lg font-bold text-indigo-200">Qual é a Razão (q) dessa P.G.?</h3>
+                    <div id="p1-options" class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                        <!-- Opções geradas por JS -->
+                    </div>
+                    <div id="p1-feedback" class="min-h-[44px] text-sm font-bold flex items-center justify-center rounded-xl p-3 hidden"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- FASE 2: TERMO GERAL (an) -->
+        <section id="tab-phase2" class="tab-content hidden flex-col gap-6">
+            <div class="card-glass p-6 rounded-3xl">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 pb-4 border-b border-slate-700/50">
+                    <div>
+                        <span class="text-xs font-bold text-purple-400 uppercase tracking-wider">Fase 2</span>
+                        <h2 class="text-2xl font-bold text-white flex items-center gap-2">
+                            🧱 O Construtor de Pontes (Termo Geral aₙ)
+                        </h2>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <span class="text-sm text-slate-400">Nível: <span id="p2-level" class="text-white font-bold">1 / 4</span></span>
+                    </div>
+                </div>
+
+                <div class="bg-purple-950/40 border border-purple-800/60 p-4 rounded-2xl text-sm mb-6 flex items-start gap-3">
+                    <div class="text-purple-300 text-xl"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+                    <div>
+                        <span class="font-bold text-purple-200">Fórmula do Termo Geral:</span> 
+                        <code class="bg-purple-900/80 px-2.5 py-1 rounded text-amber-300 font-bold">aₙ = a₁ · qⁿ⁻¹</code>
+                        <p class="text-xs text-purple-300/80 mt-1">
+                            Para encontrar a posição <strong>n</strong> sem precisar calcular termo por termo, multiplique o primeiro termo (<strong>a₁</strong>) pela razão (<strong>q</strong>) elevada a <strong>(n-1)</strong>.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+                    <div class="bg-slate-950/80 p-6 rounded-2xl border border-slate-800 flex flex-col gap-4">
+                        <div class="flex items-center justify-between">
+                            <span class="text-slate-400 text-sm">Primeiro Termo (a₁):</span>
+                            <span id="p2-a1" class="font-bold text-xl text-sky-400">2</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-slate-400 text-sm">Razão (q):</span>
+                            <span id="p2-q" class="font-bold text-xl text-pink-400">3</span>
+                        </div>
+                        <div class="flex items-center justify-between pt-2 border-t border-slate-800">
+                            <span class="text-slate-300 font-bold">Calcular o termo (aₙ):</span>
+                            <span id="p2-target-term" class="font-bold text-xl text-amber-400">a₄</span>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col gap-4">
+                        <label class="text-sm font-semibold text-slate-300">
+                            Qual é o valor numérico do termo <span id="p2-target-name" class="text-amber-300 font-bold">a₄</span>?
+                        </label>
+                        <div class="flex gap-2">
+                            <input type="number" id="p2-user-input" placeholder="Digite a resposta..." class="flex-1 bg-slate-900 border border-slate-700 focus:border-purple-500 rounded-xl px-4 py-3 text-white text-lg font-bold outline-none">
+                            <button onclick="checkPhase2Answer()" class="btn-action bg-purple-600 hover:bg-purple-500 text-white font-bold px-6 rounded-xl">
+                                Confirmar
+                            </button>
+                        </div>
+                        
+                        <details class="text-xs text-slate-400 bg-slate-900/50 p-3 rounded-xl cursor-pointer">
+                            <summary class="font-semibold text-purple-300 hover:underline">Ver dica do passo a passo</summary>
+                            <p class="mt-2 text-slate-300 leading-relaxed" id="p2-hint-text">
+                                a₁ = 2<br>
+                                a₂ = 2 × 3 = 6<br>
+                                a₃ = 6 × 3 = 18...
+                            </p>
+                        </details>
+                        <div id="p2-feedback" class="min-h-[44px] text-sm font-bold flex items-center justify-center rounded-xl p-3 hidden"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- FASE 3: SOMA DOS TERMOS (Sn) -->
+        <section id="tab-phase3" class="tab-content hidden flex-col gap-6">
+            <div class="card-glass p-6 rounded-3xl">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 pb-4 border-b border-slate-700/50">
+                    <div>
+                        <span class="text-xs font-bold text-pink-400 uppercase tracking-wider">Fase Final</span>
+                        <h2 class="text-2xl font-bold text-white flex items-center gap-2">
+                            👑 O Tesouro da Soma Acumulada (Sₙ)
+                        </h2>
+                    </div>
+                </div>
+
+                <div class="bg-slate-950/80 p-6 rounded-2xl border border-pink-900/40 mb-6 flex flex-col md:flex-row gap-6 items-center">
+                    <div class="text-5xl text-center w-full md:w-auto">♟️</div>
+                    <div class="text-sm text-slate-300 leading-relaxed">
+                        <h3 class="text-base font-bold text-pink-300 mb-1">A Lenda dos Grãos no Xadrez:</h3>
+                        Para descobrir o <strong>VALOR TOTAL ACUMULADO (Sₙ)</strong> de uma P.G. sem precisar somar número por número, utilizamos a fórmula:
+                        <div class="mt-2 text-center sm:text-left">
+                            <code class="bg-pink-950/80 text-amber-300 font-bold px-3 py-1.5 rounded-lg border border-pink-700/50 text-base">
+                                Sₙ = a₁ · (qⁿ - 1) / (q - 1)
+                            </code>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-glass p-6 rounded-2xl bg-slate-900/90 border border-slate-700">
+                    <h3 class="text-lg font-bold text-slate-100 mb-4 text-center">
+                        Calcule a Soma Total (Sₙ) dos primeiros <span id="p3-n-terms" class="text-pink-400 font-extrabold">5</span> termos:
+                    </h3>
+
+                    <div class="flex flex-wrap justify-center items-center gap-3 text-sm mb-6">
+                        <div class="bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-700">
+                            Primeiro termo (a₁): <strong id="p3-a1" class="text-sky-400">1</strong>
+                        </div>
+                        <div class="bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-700">
+                            Razão (q): <strong id="p3-q" class="text-pink-400">2</strong>
+                        </div>
+                        <div class="bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-700">
+                            Termos (n): <strong id="p3-n" class="text-amber-400">5</strong>
+                        </div>
+                    </div>
+
+                    <div id="p3-terms-visual" class="flex flex-wrap justify-center gap-2 mb-6">
+                        <!-- Termos gerados via JS -->
+                    </div>
+
+                    <div class="max-w-md mx-auto flex flex-col gap-3">
+                        <div class="flex gap-2">
+                            <input type="number" id="p3-user-input" placeholder="Soma acumulada total..." class="flex-1 bg-slate-950 border border-slate-700 focus:border-pink-500 rounded-xl px-4 py-3 text-white text-lg font-bold outline-none">
+                            <button onclick="checkPhase3Answer()" class="btn-action bg-pink-600 hover:bg-pink-500 text-white font-bold px-6 rounded-xl">
+                                Responder
+                            </button>
+                        </div>
+                        <div id="p3-feedback" class="min-h-[44px] text-sm font-bold flex items-center justify-center rounded-xl p-3 hidden"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- LABORATÓRIO LIVRE COM GRÁFICO -->
+        <section id="tab-lab" class="tab-content hidden flex-col gap-6">
+            <div class="card-glass p-6 rounded-3xl">
+                <div class="mb-6">
+                    <h2 class="text-2xl font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-flask text-teal-400"></i> Laboratório de Crescimento Exponencial
+                    </h2>
+                    <p class="text-slate-400 text-sm">
+                        Altere os valores abaixo para observar como a curva do gráfico se comporta!
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Painel de Controles -->
+                    <div class="bg-slate-900/90 p-5 rounded-2xl border border-slate-800 flex flex-col gap-5">
+                        <div>
+                            <label class="text-xs font-bold text-slate-300 uppercase block mb-2">
+                                Termo Inicial (a₁): <span id="lab-a1-val" class="text-sky-400 font-extrabold text-base">1</span>
+                            </label>
+                            <input type="range" id="lab-a1" min="1" max="10" value="1" class="w-full accent-sky-400 cursor-pointer" oninput="updateLab()">
+                        </div>
+
+                        <div>
+                            <label class="text-xs font-bold text-slate-300 uppercase block mb-2">
+                                Razão (q): <span id="lab-q-val" class="text-pink-400 font-extrabold text-base">2</span>
+                            </label>
+                            <input type="range" id="lab-q" min="0.5" max="4" step="0.5" value="2" class="w-full accent-pink-400 cursor-pointer" oninput="updateLab()">
+                            <div class="flex justify-between text-[10px] text-slate-500 mt-1">
+                                <span>0.5 (Decrescente)</span>
+                                <span>1 (Constante)</span>
+                                <span>4 (Explosivo)</span>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="text-xs font-bold text-slate-300 uppercase block mb-2">
+                                Quantidade de Termos (n): <span id="lab-n-val" class="text-amber-400 font-extrabold text-base">6</span>
+                            </label>
+                            <input type="range" id="lab-n" min="3" max="8" value="6" class="w-full accent-amber-400 cursor-pointer" oninput="updateLab()">
+                        </div>
+
+                        <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 text-xs flex flex-col gap-2">
+                            <div class="flex justify-between">
+                                <span class="text-slate-400">Último Termo (aₙ):</span>
+                                <span id="lab-an-res" class="font-bold text-indigo-300 text-sm">32</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-slate-400">Soma Total (Sₙ):</span>
+                                <span id="lab-sn-res" class="font-bold text-emerald-400 text-sm">63</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Visualização no Gráfico -->
+                    <div class="lg:col-span-2 bg-slate-950/80 p-4 rounded-2xl border border-slate-800 flex flex-col items-center justify-center min-h-[320px]">
+                        <canvas id="labChart" class="w-full h-full max-h-[320px]"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Modal Teórico Sem Cifrões -->
+    <div id="help-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="card-glass max-w-lg w-full rounded-3xl p-6 border border-indigo-500/30 shadow-2xl relative flex flex-col gap-4">
+            <button onclick="toggleHelpModal()" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <h3 class="text-xl font-bold text-white flex items-center gap-2">
+                <i class="fa-solid fa-book-open text-indigo-400"></i> Resumo Prático de P.G.
+            </h3>
+
+            <div class="text-sm text-slate-300 flex flex-col gap-3 leading-relaxed max-h-[70vh] overflow-y-auto pr-1">
+                <p>
+                    Uma <strong>Progressão Geométrica (P.G.)</strong> é uma sequência de números onde cada termo, a partir do segundo, é obtido multiplicando o número anterior por um fator constante chamado <strong>razão (q)</strong>.
+                </p>
+
+                <div class="bg-indigo-950/80 p-3.5 rounded-xl border border-indigo-800 text-xs">
+                    <strong class="text-indigo-200 text-sm">Exemplo Explicado:</strong><br>
+                    Sequência: <strong>(2, 6, 18, 54...)</strong><br>
+                    • Primeiro termo (a₁) = 2<br>
+                    • Razão (q) = 3 (pois 2 × 3 = 6, e 6 × 3 = 18...)
+                </div>
+
+                <h4 class="font-bold text-white mt-1">Fórmulas Essenciais:</h4>
+                <ul class="list-disc pl-5 flex flex-col gap-1 text-xs text-slate-300">
+                    <li><strong>Razão (q):</strong> q = a₂ / a₁</li>
+                    <li><strong>Termo Geral (aₙ):</strong> aₙ = a₁ · qⁿ⁻¹</li>
+                    <li><strong>Soma dos n termos (Sₙ):</strong> Sₙ = a₁ · (qⁿ - 1) / (q - 1)</li>
+                </ul>
+
+                <h4 class="font-bold text-white mt-1">Tipos de Progressão:</h4>
+                <ul class="list-disc pl-5 flex flex-col gap-1 text-xs text-slate-300">
+                    <li><strong>Crescente (q > 1):</strong> 2, 4, 8, 16...</li>
+                    <li><strong>Decrescente (0 < q < 1):</strong> 16, 8, 4, 2...</li>
+                    <li><strong>Constante (q = 1):</strong> 5, 5, 5, 5...</li>
+                </ul>
+            </div>
+
+            <button onclick="toggleHelpModal()" class="w-full py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-sm">
+                Entendi, voltar ao jogo!
+            </button>
+        </div>
+    </div>
+
+    <!-- Scripts da Lógica do Jogo -->
+    <script>
+        let score = 0;
+        let labChartInstance = null;
+
+        // Fase 1 - Dados
+        const phase1Data = [
+            { seq: [2, 4, 8, 16], q: 2, options: [2, 3, 4, 5] },
+            { seq: [3, 9, 27, 81], q: 3, options: [2, 3, 6, 9] },
+            { seq: [5, 25, 125], q: 5, options: [2, 5, 10, 25] },
+            { seq: [10, 20, 40, 80], q: 2, options: [2, 4, 10, 20] },
+            { seq: [1, 4, 16, 64], q: 4, options: [2, 3, 4, 8] }
+        ];
+        let p1CurrentIndex = 0;
+
+        // Fase 2 - Dados
+        const phase2Data = [
+            { a1: 2, q: 3, n: 4, targetName: "a₄", ans: 54, hint: "a₁ = 2<br>a₂ = 2 × 3 = 6<br>a₃ = 6 × 3 = 18<br>a₄ = 18 × 3 = ?" },
+            { a1: 5, q: 2, n: 5, targetName: "a₅", ans: 80, hint: "a₁ = 5<br>a₂ = 10<br>a₃ = 20<br>a₄ = 40..." },
+            { a1: 3, q: 4, n: 3, targetName: "a₃", ans: 48, hint: "a₁ = 3<br>a₂ = 12<br>a₃ = 12 × 4 = ?" },
+            { a1: 10, q: 3, n: 4, targetName: "a₄", ans: 270, hint: "10, 30, 90, ..." }
+        ];
+        let p2CurrentIndex = 0;
+
+        // Fase 3 - Dados
+        const phase3Data = [
+            { a1: 1, q: 2, n: 5, terms: [1, 2, 4, 8, 16], total: 31 },
+            { a1: 2, q: 3, n: 4, terms: [2, 6, 18, 54], total: 80 },
+            { a1: 3, q: 2, n: 5, terms: [3, 6, 12, 24, 48], total: 93 }
+        ];
+        let p3CurrentIndex = 0;
+
+        window.onload = function() {
+            renderPhase1();
+            renderPhase2();
+            renderPhase3();
+            initChart();
+        };
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('bg-indigo-600', 'text-white', 'shadow-md');
+                btn.classList.add('text-slate-400');
+            });
+
+            const activeTab = document.getElementById(`tab-${tabId}`);
+            if(activeTab) activeTab.classList.remove('hidden');
+
+            const activeNav = document.getElementById(`nav-${tabId}`);
+            if(activeNav) {
+                activeNav.classList.add('bg-indigo-600', 'text-white', 'shadow-md');
+                activeNav.classList.remove('text-slate-400');
+            }
+
+            if(tabId === 'lab') {
+                setTimeout(updateLab, 100);
+            }
+        }
+
+        function toggleHelpModal() {
+            const modal = document.getElementById('help-modal');
+            modal.classList.toggle('hidden');
+        }
+
+        function addScore(points) {
+            score += points;
+            document.getElementById('player-score').innerText = score;
+        }
+
+        // --- FASE 1 ---
+        function renderPhase1() {
+            const current = phase1Data[p1CurrentIndex];
+            document.getElementById('p1-level').innerText = `${p1CurrentIndex + 1} / ${phase1Data.length}`;
+            document.getElementById('p1-progress').style.width = `${((p1CurrentIndex + 1) / phase1Data.length) * 100}%`;
+
+            const seqContainer = document.getElementById('p1-sequence-container');
+            seqContainer.innerHTML = '';
+            current.seq.forEach((val, idx) => {
+                const numEl = document.createElement('span');
+                numEl.className = 'bg-slate-900 px-4 py-2 rounded-xl border border-indigo-500/40 text-indigo-200 shadow';
+                numEl.innerText = val;
+                seqContainer.appendChild(numEl);
+
+                if (idx < current.seq.length - 1) {
+                    const arrow = document.createElement('span');
+                    arrow.className = 'text-pink-400 text-lg';
+                    arrow.innerHTML = `<i class="fa-solid fa-arrow-right"></i>`;
+                    seqContainer.appendChild(arrow);
+                }
+            });
+
+            const optionsContainer = document.getElementById('p1-options');
+            optionsContainer.innerHTML = '';
+            current.options.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = 'btn-action bg-slate-900 border border-slate-700 hover:border-indigo-500 hover:bg-slate-800 text-white font-bold py-3 rounded-xl transition text-lg';
+                btn.innerText = `q = ${opt}`;
+                btn.onclick = () => checkPhase1Answer(opt);
+                optionsContainer.appendChild(btn);
+            });
+
+            hideFeedback('p1-feedback');
+        }
+
+        function checkPhase1Answer(selectedQ) {
+            const current = phase1Data[p1CurrentIndex];
+            const feedbackEl = document.getElementById('p1-feedback');
+
+            if (selectedQ === current.q) {
+                showFeedback(feedbackEl, true, 'Correto! Você descobriu a razão exata! 🎉');
+                addScore(100);
+                confetti({ particleCount: 40, spread: 60, origin: { y: 0.7 } });
+
+                setTimeout(() => {
+                    p1CurrentIndex++;
+                    if (p1CurrentIndex < phase1Data.length) {
+                        renderPhase1();
+                    } else {
+                        showFeedback(feedbackEl, true, '🏆 Excelente! Você completou a Fase 1 com sucesso!');
+                        setTimeout(() => switchTab('phase2'), 1500);
+                    }
+                }, 1200);
+            } else {
+                showFeedback(feedbackEl, false, 'Tente de novo! Dica: Divida um número pelo número anterior.');
+            }
+        }
+
+        // --- FASE 2 ---
+        function renderPhase2() {
+            const current = phase2Data[p2CurrentIndex];
+            document.getElementById('p2-level').innerText = `${p2CurrentIndex + 1} / ${phase2Data.length}`;
+            document.getElementById('p2-a1').innerText = current.a1;
+            document.getElementById('p2-q').innerText = current.q;
+            document.getElementById('p2-target-term').innerText = current.targetName;
+            document.getElementById('p2-target-name').innerText = current.targetName;
+            document.getElementById('p2-hint-text').innerHTML = current.hint;
+            document.getElementById('p2-user-input').value = '';
+
+            hideFeedback('p2-feedback');
+        }
+
+        function checkPhase2Answer() {
+            const current = phase2Data[p2CurrentIndex];
+            const inputVal = parseInt(document.getElementById('p2-user-input').value);
+            const feedbackEl = document.getElementById('p2-feedback');
+
+            if (inputVal === current.ans) {
+                showFeedback(feedbackEl, true, 'Resposta Exata! Termo Geral calculado perfeitamente! 🚀');
+                addScore(150);
+                confetti({ particleCount: 50, spread: 70, origin: { y: 0.7 } });
+
+                setTimeout(() => {
+                    p2CurrentIndex++;
+                    if (p2CurrentIndex < phase2Data.length) {
+                        renderPhase2();
+                    } else {
+                        showFeedback(feedbackEl, true, '🎉 Fantástico! Você conquistou a Fase 2!');
+                        setTimeout(() => switchTab('phase3'), 1500);
+                    }
+                }, 1200);
+            } else {
+                showFeedback(feedbackEl, false, 'Valor incorreto! Lembre-se: aₙ = a₁ · qⁿ⁻¹.');
+            }
+        }
+
+        // --- FASE 3 ---
+        function renderPhase3() {
+            const current = phase3Data[p3CurrentIndex];
+            document.getElementById('p3-n-terms').innerText = current.n;
+            document.getElementById('p3-a1').innerText = current.a1;
+            document.getElementById('p3-q').innerText = current.q;
+            document.getElementById('p3-n').innerText = current.n;
+            document.getElementById('p3-user-input').value = '';
+
+            const visualContainer = document.getElementById('p3-terms-visual');
+            visualContainer.innerHTML = '';
+            current.terms.forEach((t, i) => {
+                const b = document.createElement('div');
+                b.className = 'bg-slate-800 text-pink-300 border border-pink-500/30 px-3 py-1.5 rounded-lg text-sm font-bold flex items-center gap-1';
+                b.innerText = t;
+                visualContainer.appendChild(b);
+
+                if (i < current.terms.length - 1) {
+                    const plus = document.createElement('span');
+                    plus.className = 'text-slate-500 font-bold';
+                    plus.innerText = '+';
+                    visualContainer.appendChild(plus);
+                }
+            });
+
+            hideFeedback('p3-feedback');
+        }
+
+        function checkPhase3Answer() {
+            const current = phase3Data[p3CurrentIndex];
+            const inputVal = parseInt(document.getElementById('p3-user-input').value);
+            const feedbackEl = document.getElementById('p3-feedback');
+
+            if (inputVal === current.total) {
+                showFeedback(feedbackEl, true, 'Soma totalmente correta! Parabéns! 👑');
+                addScore(200);
+                confetti({ particleCount: 80, spread: 100, origin: { y: 0.6 } });
+
+                setTimeout(() => {
+                    p3CurrentIndex++;
+                    if (p3CurrentIndex < phase3Data.length) {
+                        renderPhase3();
+                    } else {
+                        showFeedback(feedbackEl, true, '🏆 SENSACIONAL! Você zerou todas as fases do jogo!');
+                        setTimeout(() => switchTab('lab'), 2000);
+                    }
+                }, 1200);
+            } else {
+                showFeedback(feedbackEl, false, 'Soma incorreta. Some os valores de cada um dos termos!');
+            }
+        }
+
+        // --- LABORATÓRIO E CHART.JS ---
+        function initChart() {
+            const ctx = document.getElementById('labChart').getContext('2d');
+            labChartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['a1', 'a2', 'a3', 'a4', 'a5', 'a6'],
+                    datasets: [{
+                        label: 'Valor do Termo (aₙ)',
+                        data: [1, 2, 4, 8, 16, 32],
+                        borderColor: '#ec4899',
+                        backgroundColor: 'rgba(236, 72, 153, 0.15)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.3,
+                        pointBackgroundColor: '#8b5cf6',
+                        pointRadius: 5
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { labels: { color: '#cbd5e1', font: { family: 'Nunito', weight: 'bold' } } }
+                    },
+                    scales: {
+                        x: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.05)' } },
+                        y: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.05)' } }
+                    }
+                }
+            });
+        }
+
+        function updateLab() {
+            const a1 = parseFloat(document.getElementById('lab-a1').value);
+            const q = parseFloat(document.getElementById('lab-q').value);
+            const n = parseInt(document.getElementById('lab-n').value);
+
+            document.getElementById('lab-a1-val').innerText = a1;
+            document.getElementById('lab-q-val').innerText = q;
+            document.getElementById('lab-n-val').innerText = n;
+
+            const labels = [];
+            const dataVals = [];
+            let currentVal = a1;
+            let totalSum = 0;
+
+            for (let i = 1; i <= n; i++) {
+                labels.push(`a${i}`);
+                dataVals.push(Number(currentVal.toFixed(2)));
+                totalSum += currentVal;
+                currentVal = currentVal * q;
+            }
+
+            const lastTerm = dataVals[dataVals.length - 1];
+            document.getElementById('lab-an-res').innerText = lastTerm;
+            document.getElementById('lab-sn-res').innerText = Number(totalSum.toFixed(2));
+
+            if (labChartInstance) {
+                labChartInstance.data.labels = labels;
+                labChartInstance.data.datasets[0].data = dataVals;
+                labChartInstance.update();
+            }
+        }
+
+        function showFeedback(el, isSuccess, message) {
+            el.classList.remove('hidden', 'bg-emerald-950/80', 'text-emerald-300', 'border-emerald-700', 'bg-rose-950/80', 'text-rose-300', 'border-rose-700');
+            el.classList.add('border');
+            
+            if (isSuccess) {
+                el.classList.add('bg-emerald-950/80', 'text-emerald-300', 'border-emerald-700');
+            } else {
+                el.classList.add('bg-rose-950/80', 'text-rose-300', 'border-rose-700');
+            }
+            el.innerText = message;
+        }
+
+        function hideFeedback(id) {
+            const el = document.getElementById(id);
+            if (el) el.classList.add('hidden');
+        }
+    </script>
+</body>
+</html>
